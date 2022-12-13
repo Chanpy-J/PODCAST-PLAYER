@@ -4,6 +4,7 @@ import tkinter as Tk
 import time
 import wave
 import os
+import numpy as np
 
 # Open wave file 
 input_wavefile = './podcast/test2.wav'
@@ -114,7 +115,21 @@ while CONTINUE:
       if len(binary_data) != BLOCKLEN*2:
         play = False
         continue
+
+      
+      skip = True
       input_block = struct.unpack('h' * BLOCKLEN, binary_data)
+      X = np.fft.fft(input_block)
+      freqbeg = int(300/RATE*BLOCKLEN)
+      freqend = int(1500/RATE*BLOCKLEN)
+      for x in range(freqbeg, freqend):
+        if int(abs(X[x])) > 35000  :
+          print(X[x])
+          skip = False
+          break
+        pass
+
+
       if(pre + 0.1 != t.get()):
         wf.setpos(int(t.get() * RATE))
       pre = t.get() 
@@ -128,7 +143,9 @@ while CONTINUE:
       output_block = input_block
 
       binary_data = struct.pack('h' * BLOCKLEN, *output_block)   # 'h' for 16 bits
-      stream.write(binary_data)
+      print(skip)
+      if not skip :
+        stream.write(binary_data)
     else:
       binary_data = wf.readframes(BLOCKLEN)
       if len(binary_data) != BLOCKLEN*2*CHANNELS:
@@ -136,7 +153,14 @@ while CONTINUE:
         continue
         pass
 
+
+      skip = False
       input_block = struct.unpack('hh' * BLOCKLEN, binary_data)
+      X = np.fft.fft(input_block)
+      #print(len(X))#8820
+
+
+
       if(pre + 0.1 != t.get()):
         wf.setpos(int(t.get() * RATE))
       pre = t.get() 
@@ -146,13 +170,10 @@ while CONTINUE:
         play = False
         CONTINUE = False
 
-
       output_block = input_block
 
       binary_data = struct.pack('hh' * BLOCKLEN, *output_block)
       stream.write(binary_data)
-      #binary_data = wf.readframes(BLOCKLEN)
-
 
 print('* Finished')
 
