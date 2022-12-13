@@ -74,6 +74,7 @@ for p in podcasts:
 list_box.selection_clear(0, 'end')
 
 prev_p = "test2.wav"
+#binary_data = wf.readframes(BLOCKLEN)
 
 while CONTINUE:
   root.update()
@@ -81,10 +82,10 @@ while CONTINUE:
   
   currentPodcast = list_box.get('active')
   podcast_path = os.getcwd() + "/" + currentPodcast
-  print(currentPodcast)
+  #print(currentPodcast)
 
   
-  if play:
+  if play :
     if currentPodcast != prev_p:
       t.set(0)
       wf          = wave.open(podcast_path, 'rb')
@@ -93,6 +94,7 @@ while CONTINUE:
       LEN         = wf.getnframes() 
       CHANNELS    = wf.getnchannels() 
       NFRAME      = wf.getnframes()
+      BLOCKLEN = int(RATE/10)
 
       slid.configure(to = NFRAME / RATE)
 
@@ -109,6 +111,9 @@ while CONTINUE:
     
     if CHANNELS == 1:
       binary_data = wf.readframes(BLOCKLEN)
+      if len(binary_data) != BLOCKLEN*2:
+        play = False
+        continue
       input_block = struct.unpack('h' * BLOCKLEN, binary_data)
       if(pre + 0.1 != t.get()):
         wf.setpos(int(t.get() * RATE))
@@ -126,6 +131,11 @@ while CONTINUE:
       stream.write(binary_data)
     else:
       binary_data = wf.readframes(BLOCKLEN)
+      if len(binary_data) != BLOCKLEN*2*CHANNELS:
+        play = False
+        continue
+        pass
+
       input_block = struct.unpack('hh' * BLOCKLEN, binary_data)
       if(pre + 0.1 != t.get()):
         wf.setpos(int(t.get() * RATE))
@@ -141,6 +151,7 @@ while CONTINUE:
 
       binary_data = struct.pack('hh' * BLOCKLEN, *output_block)
       stream.write(binary_data)
+      #binary_data = wf.readframes(BLOCKLEN)
 
 
 print('* Finished')
