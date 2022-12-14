@@ -9,7 +9,7 @@ import numpy as np
 # Open wave file 
 input_wavefile = './podcast/test2.wav'
 
-wf          = wave.open( input_wavefile, 'rb')
+wf          = wave.open(input_wavefile, 'rb')
 RATE        = wf.getframerate()
 WIDTH       = wf.getsampwidth()
 LEN         = wf.getnframes() 
@@ -94,9 +94,9 @@ pre = 0
 
 os.chdir("./podcast")
 podcasts = os.listdir()
-for p in podcasts:
-  if p != ".DS_Store":
-    list_box.insert('end', p)
+for pd in podcasts:
+  if pd != ".DS_Store":
+    list_box.insert('end', pd)
 
 list_box.selection_set(0)
 
@@ -104,10 +104,6 @@ prev_p = "test2.wav"
 #binary_data = wf.readframes(BLOCKLEN)
 
 
-
-# while(1):
-#   list_box.selection_clear(0, 'end')
-#   currentPodcast = list_box.get('active')
 while CONTINUE:
   root.update()
   root.title('podcast player')
