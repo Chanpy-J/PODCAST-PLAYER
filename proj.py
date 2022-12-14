@@ -26,6 +26,30 @@ stream = p.open(
     output = True,
     frames_per_buffer = 128) 
 
+def replay():
+  global podcast_path
+  t.set(0)
+  wf          = wave.open(podcast_path, 'rb')
+  RATE        = wf.getframerate()
+  WIDTH       = wf.getsampwidth()
+  LEN         = wf.getnframes() 
+  CHANNELS    = wf.getnchannels() 
+  NFRAME      = wf.getnframes()
+  BLOCKLEN = int(RATE / 10)
+
+  slid.configure(to = NFRAME / RATE)
+
+  p = pyaudio.PyAudio()
+  stream = p.open(
+      format = pyaudio.paInt16,  
+      channels = CHANNELS, 
+      rate = RATE,
+      input = False, 
+      output = True,
+      frames_per_buffer = 128)
+  play = True
+
+
 def fun_pp():
   global play
   if(play):
@@ -51,12 +75,14 @@ t.set(0)
 list_box = Tk.Listbox(root, bg = 'black', fg = 'green', width = 20)
 slid = Tk.Scale(root,from_= 0.0, to = (NFRAME / RATE), orient = Tk.HORIZONTAL, variable = t )
 B_pp = Tk.Button(root, text = 'play/pause', command = fun_pp)
+B_rp = Tk.Button(root, text = 'replay', command = replay)
 B_quit = Tk.Button(root, text = 'Quit', command = fun_quit)
 
 # Place widgets                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     
 list_box.pack(side = Tk.TOP)
 slid.pack(side = Tk.TOP, fill =Tk.BOTH)
 B_pp.pack(side = Tk.LEFT)
+B_rp.pack(side = Tk.LEFT)
 B_quit.pack(side = Tk.LEFT)
            
 
@@ -72,18 +98,23 @@ for p in podcasts:
   if p != ".DS_Store":
     list_box.insert('end', p)
 
-list_box.selection_clear(0, 'end')
+list_box.selection_set(0)
 
 prev_p = "test2.wav"
 #binary_data = wf.readframes(BLOCKLEN)
 
+
+
+# while(1):
+#   list_box.selection_clear(0, 'end')
+#   currentPodcast = list_box.get('active')
 while CONTINUE:
   root.update()
   root.title('podcast player')
   
   currentPodcast = list_box.get('active')
   podcast_path = os.getcwd() + "/" + currentPodcast
-  #print(currentPodcast)
+  print(currentPodcast)
 
   
   if play :
@@ -95,7 +126,7 @@ while CONTINUE:
       LEN         = wf.getnframes() 
       CHANNELS    = wf.getnchannels() 
       NFRAME      = wf.getnframes()
-      BLOCKLEN = int(RATE/10)
+      BLOCKLEN = int(RATE / 10)
 
       slid.configure(to = NFRAME / RATE)
 
@@ -112,8 +143,9 @@ while CONTINUE:
     
     if CHANNELS == 1:
       binary_data = wf.readframes(BLOCKLEN)
-      if len(binary_data) != BLOCKLEN*2:
+      if len(binary_data) != BLOCKLEN * 2:
         play = False
+        print("pause")
         continue
 
       
@@ -123,7 +155,7 @@ while CONTINUE:
       freqbeg = int(300/RATE*BLOCKLEN)
       freqend = int(1500/RATE*BLOCKLEN)
       for x in range(freqbeg, freqend):
-        if int(abs(X[x])) > 35000  :
+        if int(abs(X[x])) > 35000:
           print(X[x])
           skip = False
           break
@@ -148,10 +180,10 @@ while CONTINUE:
         stream.write(binary_data)
     else:
       binary_data = wf.readframes(BLOCKLEN)
-      if len(binary_data) != BLOCKLEN*2*CHANNELS:
+      if len(binary_data) != BLOCKLEN * 2 * CHANNELS:
         play = False
+        print("pause")
         continue
-        pass
 
 
       skip = False
