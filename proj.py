@@ -29,24 +29,25 @@ stream = p.open(
 def replay():
   global podcast_path
   t.set(0)
-  wf          = wave.open(podcast_path, 'rb')
-  RATE        = wf.getframerate()
-  WIDTH       = wf.getsampwidth()
-  LEN         = wf.getnframes() 
-  CHANNELS    = wf.getnchannels() 
-  NFRAME      = wf.getnframes()
-  BLOCKLEN = int(RATE / 10)
-
-  slid.configure(to = NFRAME / RATE)
-
-  p = pyaudio.PyAudio()
-  stream = p.open(
-      format = pyaudio.paInt16,  
-      channels = CHANNELS, 
-      rate = RATE,
-      input = False, 
-      output = True,
-      frames_per_buffer = 128)
+  wf.setpos(0)
+  #wf          = wave.open(podcast_path, 'rb')
+  #RATE        = wf.getframerate()
+  #WIDTH       = wf.getsampwidth()
+  #LEN         = wf.getnframes() 
+  #CHANNELS    = wf.getnchannels() 
+  #NFRAME      = wf.getnframes()
+  #BLOCKLEN = int(RATE / 10)
+#
+  #slid.configure(to = NFRAME / RATE)
+#
+  #p = pyaudio.PyAudio()
+  #stream = p.open(
+      #format = pyaudio.paInt16,  
+      #channels = CHANNELS, 
+      #rate = RATE,
+      #input = False, 
+      #output = True,
+      #frames_per_buffer = 128)
   play = True
 
 
@@ -110,31 +111,32 @@ while CONTINUE:
   
   currentPodcast = list_box.get('active')
   podcast_path = os.getcwd() + "/" + currentPodcast
-  print(currentPodcast)
+  #print(currentPodcast)
+  if currentPodcast != prev_p:
+    t.set(0)
+    wf          = wave.open(podcast_path, 'rb')
+    RATE        = wf.getframerate()
+    WIDTH       = wf.getsampwidth()
+    LEN         = wf.getnframes() 
+    CHANNELS    = wf.getnchannels() 
+    NFRAME      = wf.getnframes()
+    BLOCKLEN = int(RATE / 10)
+
+    slid.configure(to = NFRAME / RATE)
+
+    p = pyaudio.PyAudio()
+    stream = p.open(
+        format = pyaudio.paInt16,  
+        channels = CHANNELS, 
+        rate = RATE,
+        input = False, 
+        output = True,
+        frames_per_buffer = 128)
+    prev_p = currentPodcast
 
   
   if play :
-    if currentPodcast != prev_p:
-      t.set(0)
-      wf          = wave.open(podcast_path, 'rb')
-      RATE        = wf.getframerate()
-      WIDTH       = wf.getsampwidth()
-      LEN         = wf.getnframes() 
-      CHANNELS    = wf.getnchannels() 
-      NFRAME      = wf.getnframes()
-      BLOCKLEN = int(RATE / 10)
-
-      slid.configure(to = NFRAME / RATE)
-
-      p = pyaudio.PyAudio()
-      stream = p.open(
-          format = pyaudio.paInt16,  
-          channels = CHANNELS, 
-          rate = RATE,
-          input = False, 
-          output = True,
-          frames_per_buffer = 128)
-      prev_p = currentPodcast
+    
 
     
     if CHANNELS == 1:
@@ -151,8 +153,8 @@ while CONTINUE:
       freqbeg = int(300/RATE*BLOCKLEN)
       freqend = int(1500/RATE*BLOCKLEN)
       for x in range(freqbeg, freqend):
-        if int(abs(X[x])) > 35000:
-          print(X[x])
+        if int(abs(X[x])) > 10000:
+          #print(X[x])
           skip = False
           break
         pass
@@ -165,13 +167,13 @@ while CONTINUE:
 
       if pre >= (NFRAME / RATE):
         play = False
-        CONTINUE = False
+        #CONTINUE = False
 
 
       output_block = input_block
 
       binary_data = struct.pack('h' * BLOCKLEN, *output_block)   # 'h' for 16 bits
-      print(skip)
+      #print(skip)
       if not skip :
         stream.write(binary_data)
     else:
@@ -196,12 +198,14 @@ while CONTINUE:
 
       if pre >= (NFRAME / RATE):
         play = False
-        CONTINUE = False
+        #CONTINUE = False
 
       output_block = input_block
 
       binary_data = struct.pack('hh' * BLOCKLEN, *output_block)
       stream.write(binary_data)
+  else:
+    time.sleep(0.1)
 
 print('* Finished')
 
