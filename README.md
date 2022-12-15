@@ -7,3 +7,6 @@ begin to design the smart fasten function refer to demo 13 plot_microphone_input
 
 select frequecny refer from https://flypaper.soundfly.com/produce/eqing-vocals-whats-happening-in-each-frequency-range-in-the-human-voice/
 100-500 loosen on the high boundary
+
+still need to determine, the gate of volumn not to pass
+wait to do: wav material
