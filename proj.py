@@ -30,6 +30,7 @@ def replay():
   global podcast_path
   t.set(0)
   wf.setpos(0)
+  sv.set(0)
   play = True
   #wf          = wave.open(podcast_path, 'rb')
   #RATE        = wf.getframerate()
