@@ -7,7 +7,7 @@ import os
 import numpy as np
 
 # Open wave file 
-input_wavefile = './podcast/test.wav'
+input_wavefile = './podcast/Mono.wav'
 
 wf          = wave.open(input_wavefile, 'rb')
 RATE        = wf.getframerate()
@@ -26,31 +26,22 @@ stream = p.open(
     output = True,
     frames_per_buffer = 128) 
 
+def clip16( x ):    
+    # Clipping for 16 bits
+    if x > 32767:
+        x = 32767
+    elif x < -32768:
+        x = -32768
+    else:
+        x = x        
+    return (x)
+
 def replay():
   global podcast_path
   t.set(0)
   wf.setpos(0)
   sv.set(0)
   play = True
-  #wf          = wave.open(podcast_path, 'rb')
-  #RATE        = wf.getframerate()
-  #WIDTH       = wf.getsampwidth()
-  #LEN         = wf.getnframes() 
-  #CHANNELS    = wf.getnchannels() 
-  #NFRAME      = wf.getnframes()
-  #BLOCKLEN = int(RATE / 10)
-#
-  #slid.configure(to = NFRAME / RATE)
-#
-  #p = pyaudio.PyAudio()
-  #stream = p.open(
-      #format = pyaudio.paInt16,  
-      #channels = CHANNELS, 
-      #rate = RATE,
-      #input = False, 
-      #output = True,
-      #frames_per_buffer = 128)
-
 
 def fun_pp():
   global play
@@ -80,7 +71,7 @@ def fun_sf():
 
 # Define TK root
 root = Tk.Tk()
-root.geometry("300x310")
+root.geometry("500x310")
 gain = Tk.IntVar()
 gain.set(10)
 # Define widgets
@@ -129,9 +120,7 @@ for pd in podcasts:
 
 list_box.selection_set(0)
 
-prev_p = "test2.wav"
-#binary_data = wf.readframes(BLOCKLEN)
-
+prev_p = "Mono.wav"
 
 while CONTINUE:
   root.update()
@@ -139,7 +128,7 @@ while CONTINUE:
   
   currentPodcast = list_box.get('active')
   podcast_path = os.getcwd() + "/" + currentPodcast
-  #print(currentPodcast)
+  # print(currentPodcast)
   if currentPodcast != prev_p:
     t.set(0)
     sv.set(0)
@@ -166,9 +155,6 @@ while CONTINUE:
 
   
   if play :
-    
-
-    
     if CHANNELS == 1:
       binary_data = wf.readframes(BLOCKLEN)
       if len(binary_data) != BLOCKLEN * 2:
@@ -176,9 +162,6 @@ while CONTINUE:
         print("pause")
         continue
 
-
-
-      
       skip = True
       input_block = struct.unpack('h' * BLOCKLEN, binary_data)
       X = np.fft.fft(input_block)
@@ -189,11 +172,9 @@ while CONTINUE:
       else :
         for x in range(freqbeg, freqend):
           if int(abs(X[x])) > 10000 :
-            #print(X[x])
             skip = False
             break
           pass
-
 
       if(pre + 0.1 != t.get()):
         wf.setpos(int(t.get() * RATE))
@@ -202,17 +183,14 @@ while CONTINUE:
 
       if pre >= (NFRAME / RATE):
         play = False
-        #CONTINUE = False
 
       for i in range(0, len(input_block)):
-        output_block[i] =int( input_block[i] * (gain.get() /10))
-      #output_block = input_block
+        output_block[i] =int(clip16(input_block[i] * (gain.get() /10)))
       binary_data = struct.pack('h' * BLOCKLEN, *output_block)   # 'h' for 16 bits
       if not skip:
         stream.write(binary_data)
       else:
         sv.set(sv.get() + 0.1)
-        print(sv.get())
     else:
       binary_data = wf.readframes(BLOCKLEN)
       if len(binary_data) != BLOCKLEN * 2 * CHANNELS:
@@ -234,10 +212,7 @@ while CONTINUE:
           skip = False
           break
         pass
-      #print(len(X))#8820
-
-
-
+      
       if(pre + 0.1 != t.get()):
         wf.setpos(int(t.get() * RATE))
       pre = t.get() 
@@ -245,10 +220,10 @@ while CONTINUE:
 
       if pre >= (NFRAME / RATE):
         play = False
-        #CONTINUE = False
+  
       output_block = [0] * BLOCKLEN*CHANNELS
       for i in range(0, len(input_block)):
-        output_block[i] =int( input_block[i] * (gain.get() /10))
+        output_block[i] =int(clip16(input_block[i] * (gain.get() /10)))
 
       binary_data = struct.pack('hh' * BLOCKLEN, *output_block)
       if not skip :
