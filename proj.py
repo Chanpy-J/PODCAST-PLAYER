@@ -86,7 +86,7 @@ B_pp = Tk.Button(root, text = 'play/pause', command = fun_pp)
 B_rp = Tk.Button(root, text = 'replay', command = replay)
 B_quit = Tk.Button(root, text = 'Quit', command = fun_quit)
 B_fasten = Tk.Button(root, text = "smart fasten", command = fun_sf)
-S_gain = Tk.Scale(root, label = 'volumn', variable = gain, from_ = 0, to = 100, orient = Tk. HORIZONTAL)
+S_gain = Tk.Scale(root, label = 'volume', variable = gain, from_ = 0, to = 100, orient = Tk. HORIZONTAL)
 L_timesave = Tk.Label(root , textvariable =sv)
 L_tsl = Tk.Label(root, text = "save time")
 
@@ -165,8 +165,8 @@ while CONTINUE:
       skip = True
       input_block = struct.unpack('h' * BLOCKLEN, binary_data)
       X = np.fft.fft(input_block)
-      freqbeg = int(300/RATE*BLOCKLEN)
-      freqend = int(1500/RATE*BLOCKLEN)
+      freqbeg = int(80/RATE*BLOCKLEN)
+      freqend = int(300/RATE*BLOCKLEN)
       if not sf :
         skip = False 
       else :
@@ -202,8 +202,8 @@ while CONTINUE:
       skip = True
       input_block = struct.unpack('hh' * BLOCKLEN, binary_data)
       X = np.fft.fft(input_block)
-      freqbeg = int(300/RATE*BLOCKLEN*CHANNELS)
-      freqend = int(1500/RATE*BLOCKLEN*CHANNELS)
+      freqbeg = int(80/RATE*BLOCKLEN*CHANNELS)
+      freqend = int(300/RATE*BLOCKLEN*CHANNELS)
       for x in range(freqbeg, freqend):
         if not sf:
           skip = False
